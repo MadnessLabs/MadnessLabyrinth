@@ -1,4 +1,4 @@
-import { Component, Element } from '@stencil/core';
+import { Component, Element, Listen } from '@stencil/core';
 
 import { Character } from '../../services/character';
 
@@ -18,9 +18,9 @@ export class MadnessLabyrinth {
     0, 1, 0, 0, 0, 1, 0, 1, 0, 0,
     0, 1, 1, 1, 1, 1, 1, 1, 0, 0,
     0, 0, 1, 0, 0, 0, 1, 0, 0, 0,
-    0, 0, 1, 1, 1, 1, 1, 0, 0, 0,
-    0, 1, 1, 0, 0, 0, 0, 0, 0, 0,
-    0, 1, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 1, 1, 1, 1, 1, 1, 1, 0,
+    0, 1, 1, 0, 0, 0, 0, 0, 1, 0,
+    0, 1, 0, 0, 0, 0, 0, 0, 1, 0,
     0, 1, 1, 1, 1, 1, 1, 1, 1, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0
   ];
@@ -39,10 +39,27 @@ export class MadnessLabyrinth {
   
   @Element() gameEl: any;
 
+  @Listen('body:keydown')
+  onKeyDown(event) {
+    if (event.keyCode >= 37 && event.keyCode <= 40) {
+      this.keysDown[event.keyCode] = true;
+    }
+  }
+
+  @Listen('body:keyup')
+  onKeyUp(event) {
+    if (event.keyCode >= 37 && event.keyCode <= 40) {
+      this.keysDown[event.keyCode] = false;
+    }
+  }
+
   drawGame() {
     if (this.ctx === null) {
       return;
     }
+
+    var currentFrameTime = Date.now();
+    //var timeElapsed = currentFrameTime = this.lastFrameTime;
 
     var sec = Math.floor(Date.now() / 1000);
     if (sec !== this.currentSecond) {
@@ -51,6 +68,34 @@ export class MadnessLabyrinth {
       this.frameCount = 1;
     } else {
       this.frameCount = this.frameCount + 1;
+    }
+
+    if (!this.player.processMovement(currentFrameTime)) {
+      if (
+        this.keysDown[38] && this.player.tileFrom[1] > 0 
+        && this.gameMap[this.toIndex(this.player.tileFrom[0], this.player.tileFrom[1] - 1)] === 1
+      ) {
+        this.player.tileTo[1] -= 1;
+      } else if (
+        this.keysDown[40] && this.player.tileFrom[1] < (this.mapTileHeight - 1)
+        && this.gameMap[this.toIndex(this.player.tileFrom[0], this.player.tileFrom[1] + 1)] === 1
+      ) {
+        this.player.tileTo[1] += 1;
+      } else if (
+        this.keysDown[37] && this.player.tileFrom[0] > 0
+        && this.gameMap[this.toIndex(this.player.tileFrom[0] - 1, this.player.tileFrom[1])] === 1
+      ) {
+        this.player.tileTo[0] -= 1;
+      } else if (
+        this.keysDown[39] && this.player.tileFrom[0] < (this.mapTileWidth - 1)
+        && this.gameMap[this.toIndex(this.player.tileFrom[0] + 1, this.player.tileFrom[1] + 1)] === 1
+      ) {
+        this.player.tileTo[0] += 1;
+      }
+
+      if (this.player.tileFrom[0] !== this.player.tileTo[0] || this.player.tileFrom[1] !== this.player.tileTo[1]) {
+        this.player.timeMoved = currentFrameTime;
+      }
     }
 
     for (let y = 0; y < this.mapTileHeight; y++) {
@@ -67,10 +112,18 @@ export class MadnessLabyrinth {
       }
     }
 
+    this.ctx.fillStyle = "#00FF00";
+    this.ctx.fillRect(this.player.position[0], this.player.position[1], this.player.dimensions[0], this.player.dimensions[1]);
+
     this.ctx.fillStyle = '#FF0000';
     this.ctx.fillText(`FPS: ${this.frameLastSecond}`, 10, 20);
 
+    this.lastFrameTime = currentFrameTime;
     requestAnimationFrame(this.drawGame.bind(this));
+  }
+
+  toIndex(x: number, y: number) {
+    return ((y * this.mapTileWidth) + x);
   }
 
   componentDidLoad() {
