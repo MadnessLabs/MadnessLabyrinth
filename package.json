@@ -1,0 +1,89 @@
+{
+    "name": "madnesslabyrinth",
+    "private": true,
+    "version": "0.0.1",
+    "description": "A strategy game by Madness Labs",
+    "files": [
+        "dist/"
+    ],
+    "scripts": {
+        "android": "npm run copy && npm run env -- dev && stencil build --cordova && cordova run android",
+        "copy": "node tasks/copy.js",
+        "build": "npm run copy && stencil build",
+        "build:app": "npm run copy && stencil build",
+        "build:prerender": "npm run copy && stencil build --prerender",
+        "build:stats": "npm run copy && stencil build --stats",
+        "deploy:api": "npm run lint:api:fix && cd ./functions && npm run test && firebase deploy --only functions",
+        "deploy:api:live": "npm run lint:api:fix && firebase deploy -P live --only functions",
+        "deploy:app": "npm run lint:app:fix && npm run env -- dev && npm run copy && stencil build && firebase deploy --only hosting",
+        "deploy:app:live": "npm run lint:app:fix && npm run env -- live && npm run copy && stencil build && firebase deploy -P live --only hosting",
+        "deploy:docs": "npm run docs && firebase deploy --only hosting",
+        "dev": "npm run env -- local && npm run copy && concurrently \"stencil build --dev --watch\" \"npm run sync\" ",
+        "dev:live": "concurrently \"stencil build --watch\" \"npm run sync\" ",
+        "docs": "npm run docs:components && npm run docs:api",
+        "docs:api": "apidoc -i ./functions/src/ -o ./www/docs/api",
+        "docs:components": "typedoc --name \"TrackMyGiving Components\" --out ./www/docs/components --exclude **/*.spec.ts ./src",
+        "env": "node tasks/env.js",
+        "git:prepush": "npm run lint:fix && stencil build",
+        "lint": "npm run lint:api && npm run lint:app",
+        "lint:fix": "npm run lint:api:fix && npm run lint:app:fix",
+        "lint:api": "tslint -c ./functions/tslint.json './functions/src/**/*.ts'",
+        "lint:api:fix": "tslint -c ./functions/tslint.json './functions/src/**/*.ts' --fix",
+        "lint:app": "tslint -c ./tslint.json './src/**/*.{ts,tsx}'",
+        "lint:app:fix": "tslint -c ./tslint.json './src/**/*.{ts,tsx}' --fix",
+        "serve": "npm run sync",
+        "start": "npm run dev",
+        "stencil": "npm run build",
+        "sync": "browser-sync start -c bs-config.js",
+        "test": "jest --no-cache",
+        "test:watch": "jest --watch --no-cache"
+    },
+    "enjin": {
+        "root": "www"
+    },
+    "dependencies": {
+        "@ionic/core": "^4.0.0-alpha.7",
+        "@stencil/core": "^0.9.6",
+        "firebase": "^4.13.1"
+    },
+    "devDependencies": {
+        "@stencil/dev-server": "latest",
+        "@stencil/sass": "latest",
+        "@stencil/utils": "latest",
+        "@types/jest": "^22.2.2",
+        "browsersync": "0.0.1-security",
+        "concurrently": "^3.5.1",
+        "connect-history-api-fallback": "^1.5.0",
+        "copy": "^0.3.1",
+        "fs-extra": "^4.0.3",
+        "husky": "^1.0.0-rc.6",
+        "jest": "^22.4.3",
+        "tslint": "^5.10.0",
+        "tslint-ionic-rules": "0.0.14",
+        "typedoc": "^0.10.0",
+        "typedoc-plugin-external-module-name": "^1.1.1"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/MadnessLabs/MadnessLabsPWA.git"
+    },
+    "author": "Madness Labs",
+    "license": "MIT",
+    "bugs": {
+        "url": "https://github.com/MadnessLabs/MadnessLabsPWA"
+    },
+    "homepage": "https://github.com/MadnessLabs/MadnessLabsPWA",
+    "jest": {
+        "transform": {
+            "^.+\\.(ts|tsx)$": "<rootDir>/node_modules/@stencil/core/testing/jest.preprocessor.js"
+        },
+        "testRegex": "(/__tests__/.*|\\.(test|spec))\\.(tsx?|jsx?)$",
+        "moduleFileExtensions": [
+            "ts",
+            "tsx",
+            "js",
+            "json",
+            "jsx"
+        ]
+    }
+}

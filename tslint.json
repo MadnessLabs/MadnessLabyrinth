@@ -1,0 +1,32 @@
+{
+  "extends": [
+    "tslint-ionic-rules"
+  ],
+  "rules": {
+    "one-line": true,
+    "indent": [
+      true,
+      "spaces",
+      2
+    ],
+    "linebreak-style": false,
+    "no-conditional-assignment": false,
+    "no-non-null-assertion": false,
+    "no-unnecessary-type-assertion": false,
+    "prefer-for-of": false,
+    "newline-before-return": true,
+    "no-import-side-effect": false,
+    "ordered-imports": [
+      true,
+      {
+        "named-imports-order": "lowercase-last"
+      }
+    ]
+  },
+  "linterOptions": {
+    "exclude": [
+      "src/global/environment.ts",
+      "src/**/*.d.ts"
+    ]
+  }
+}
