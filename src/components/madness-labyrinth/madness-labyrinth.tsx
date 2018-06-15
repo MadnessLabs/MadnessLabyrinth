@@ -76,7 +76,9 @@ export class MadnessLabyrinth {
   componentDidLoad() {
     this.player = new Character({
       tileWidth: this.tileWidth,
-      tileHeight: this.tileHeight
+      tileHeight: this.tileHeight,
+      mapTileWidth: this.mapTileWidth,
+      mapTileHeight: this.mapTileHeight
     });
     this.canvas = this.gameEl.querySelector('canvas');
     this.ctx = this.canvas.getContext('2d');
